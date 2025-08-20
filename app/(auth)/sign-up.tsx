@@ -1,11 +1,12 @@
 import { View, Text, ScrollView, Image, KeyboardAvoidingView, Alert, Platform } from 'react-native'
-import React, { useState } from 'react'
+import React, { useContext, useState } from 'react'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '@/constants'
 import FormField from '@/components/form-field'
 import CustomButton from '@/components/custom-button'
 import { Link, router } from 'expo-router'
 import { createUser } from "../../lib/appwrite"
+import { GlobalContext } from '@/context/globalProvider'
 
 const SignUp = () => {
   const [form, setForm] = useState({

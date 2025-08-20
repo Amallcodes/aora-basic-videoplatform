@@ -1,32 +1,35 @@
 import { getCurrentUser } from "@/lib/appwrite";
 import { GlobalContextType } from "@/models/models";
-import { createContext, ReactNode, useContext, useEffect, useState } from "react";
+import { createContext, ReactNode, useEffect, useState } from "react";
 
 export const GlobalContext = createContext<GlobalContextType>({
     isLoggedIn: false,
     user: null,
     isLoading: false,
-    setIsLoggedIn: () => {},
-    setUser: () => {},
+    setIsLoggedIn: () => { },
+    setUser: () => { },
 });
 
 export const GlobalProvider = ({ children }: { children: ReactNode }) => {
     const [isLoggedIn, setIsLoggedIn] = useState(false);
     const [user, setUser] = useState<any>(null);
-    const [isLoading, setIsLoading] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
+
+    async function fetchCurrentUser() {
+        try {
+            const currentUser = await getCurrentUser();
+            setIsLoggedIn(true);
+            setUser(currentUser);
+            // console.log(currentUser)
+        } catch (error) {
+            console.error(error);
+        } finally {
+            setIsLoading(false);
+        }
+    }
 
     useEffect(() => {
-        getCurrentUser()
-            .then((res) => {
-                setIsLoggedIn(true);
-                setUser(res);
-            })
-            .catch((error) => {
-                console.log(error);
-            })
-            .finally(() => {
-                setIsLoading(false);
-            })
+        fetchCurrentUser();
     }, []);
 
     return (

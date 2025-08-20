@@ -1,6 +1,6 @@
 import { View, Text, Button, FlatList, Image, RefreshControl, Alert } from 'react-native'
 import React, { useContext, useEffect, useState } from 'react'
-import { getAllPosts, getLatestPosts, getUserPosts, logout, searchPosts } from '@/lib/appwrite'
+import { getAllPosts, getLatestPosts, logout, searchPosts } from '@/lib/appwrite'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '@/constants'
 import SearchInput from '@/components/search-input'
@@ -12,10 +12,14 @@ import VideoCard from '@/components/video-card'
 import { VideoPost } from '@/app/models'
 import { useLocalSearchParams } from 'expo-router'
 
-const Profile = () => {
-  const { user, setUser, setIsLoggedIn } = useContext(GlobalContext);
+const Search = () => {
+  const { query } = useLocalSearchParams();
 
-  const { data: posts, refetch } = useAppwrite(() => getUserPosts(user.$id));
+  const { data: posts, refetch } = useAppwrite(() => searchPosts(query));
+  
+  useEffect(() => {
+    refetch();
+  }, [query])
 
   return (
     <SafeAreaView className='bg-primary flex-1'>
@@ -34,7 +38,9 @@ const Profile = () => {
                 <Text className='text-sm font-bold text-gray-100'>
                   Search Results
                 </Text>
-               
+                <Text className='text-2xl font-psemibold text-white'>
+                  {query}
+                </Text>
               </View>
 
               <View className='mt-1.5'>
@@ -47,7 +53,7 @@ const Profile = () => {
             </View>
 
 
-            {/* <SearchInput initialQuery={query} /> */}
+            <SearchInput initialQuery={query} />
 
           </View>
         )}
@@ -62,4 +68,4 @@ const Profile = () => {
   )
 }
 
-export default Profile
+export default Search

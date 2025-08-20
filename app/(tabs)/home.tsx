@@ -1,18 +1,39 @@
-import { View, Text, Button, FlatList, Image } from 'react-native'
-import React from 'react'
-import { logout } from '@/lib/appwrite'
+import { View, Text, Button, FlatList, Image, RefreshControl, Alert } from 'react-native'
+import React, { useContext, useEffect, useState } from 'react'
+import { getAllPosts, getLatestPosts, logout } from '@/lib/appwrite'
 import { SafeAreaView } from 'react-native-safe-area-context'
 import { images } from '@/constants'
 import SearchInput from '@/components/search-input'
+import Trending from '@/components/trending'
+import EmptyState from "../../components/empty-state"
+import { GlobalContext } from '@/context/globalProvider'
+import useAppwrite from '@/hooks/useAppwrite'
+import VideoCard from '@/components/video-card'
+import { VideoPost } from '@/app/models'
+import { router } from 'expo-router'
 
 const Home = () => {
+  const { setIsLoggedIn, setUser } = useContext(GlobalContext);
+
+  const { data: posts, refetch } = useAppwrite(getAllPosts);
+  const { data: latestPosts } = useAppwrite(getLatestPosts);
+  const [refreshing, setRefreshing] = useState(false);
+
+  const onRefresh = async () => {
+    setRefreshing(true);
+    await refetch();
+    setRefreshing(false);
+  }
+
   return (
-    <SafeAreaView className='bg-primary'>
+    <SafeAreaView className='bg-primary flex-1'>
       <FlatList
-        data={[{ id: 1 }, { id: 2 }, { id: 3 }, { id: 4 }, { id: 5 }]}
-        keyExtractor={(item) => item.id}
+        data={posts as VideoPost[]}
+        keyExtractor={(item) => item.$id}
         renderItem={({ item }) => (
-          <Text className='text-3xl'>{item.id}</Text>
+          <VideoCard
+            video={item}
+          />
         )}
         ListHeaderComponent={() => (
           <View className='my-6 px-4 space-y-6'>
@@ -36,18 +57,36 @@ const Home = () => {
             </View>
 
 
-          <SearchInput 
-          
-          />
+            <SearchInput />
 
-          <View className='w-full flex-1 pt-5 pb-8'>
-            <Text className='text-gray-100 text-lg font-p-regular'>
-              Latest Videos
-            </Text>
-          </View>
+            {/* <Button
+              title='logout'
+              onPress={() => {
+                setIsLoggedIn(false);
+                setUser(null);
+                router.replace('/sign-in');
+              }}
+            /> */}
+
+            <View className='w-full flex-1 pt-5 pb-8'>
+              <Text className='text-gray-100 text-lg font-p-regular'>
+                Latest Videos
+              </Text>
+            </View>
+
+            <Trending
+              posts={latestPosts as VideoPost[]}
+            />
 
           </View>
         )}
+        ListEmptyComponent={() => (
+          <EmptyState
+            title="No videos found!"
+            subtitle="Be the first one to upload a video"
+          />
+        )}
+        refreshControl={<RefreshControl refreshing={refreshing} onRefresh={onRefresh} />}
       />
     </SafeAreaView>
   )
