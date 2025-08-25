@@ -13,7 +13,7 @@ import { VideoPost } from '@/app/models'
 import { router } from 'expo-router'
 
 const Home = () => {
-  const { setIsLoggedIn, setUser } = useContext(GlobalContext);
+  const { user } = useContext(GlobalContext);
 
   const { data: posts, refetch } = useAppwrite(getAllPosts);
   const { data: latestPosts } = useAppwrite(getLatestPosts);
@@ -43,7 +43,7 @@ const Home = () => {
                   Welcome back,
                 </Text>
                 <Text className='text-2xl font-psemibold text-white'>
-                  Jsmastery
+                  {user?.username}
                 </Text>
               </View>
 
@@ -58,15 +58,6 @@ const Home = () => {
 
 
             <SearchInput />
-
-            {/* <Button
-              title='logout'
-              onPress={() => {
-                setIsLoggedIn(false);
-                setUser(null);
-                router.replace('/sign-in');
-              }}
-            /> */}
 
             <View className='w-full flex-1 pt-5 pb-8'>
               <Text className='text-gray-100 text-lg font-p-regular'>
